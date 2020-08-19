@@ -1,10 +1,9 @@
 render-python
 requests
 numpy
-pillow
 pathos
 tifffile
-opencv-python
+opencv-contrib-python
 shapely
 rtree
 networkx
@@ -12,5 +11,9 @@ pandas
 matplotlib
 xmltodict
 argschema>1.15.5
+boto3
+botocore
 pyxb
-
+pillow>=4.3.0
+scikit-image
+lxml

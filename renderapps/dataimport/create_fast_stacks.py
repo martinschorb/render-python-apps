@@ -1,6 +1,6 @@
 import os
 import renderapi
-from renderapi.tilespec import TileSpec, Layout, MipMapLevel
+from renderapi.tilespec import TileSpec, Layout, MipMap
 from renderapi.transform import AffineModel
 from .create_mipmaps import create_mipmaps
 my_env = os.environ.copy()
@@ -43,7 +43,11 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputSt
     mipmap_args = []
     tilespecpaths = []
     for ((ch,sess),chgroup) in df.groupby(['ch_name','session']):
+<<<<<<< HEAD
         print(ch,sess)
+=======
+#        print ch,sess
+>>>>>>> master
 
         for ((rib,sect),group) in chgroup.groupby(['ribbon','section']):
             tilespeclist=[]
