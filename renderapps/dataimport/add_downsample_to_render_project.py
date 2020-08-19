@@ -1,7 +1,7 @@
 import os
-from create_mipmaps import create_mipmaps
+from .create_mipmaps import create_mipmaps
 import renderapi
-from renderapi.tilespec import MipMapLevel
+from renderapi.tilespec import MipMap
 from functools import partial
 from ..module.render_module import RenderModule, RenderParameters
 from argschema.fields import Str, Boolean, Int
@@ -60,7 +60,7 @@ def make_tilespecs_and_cmds(render,inputStack,outputStack):
             downdir2 = downdir.replace(" ", "%20")
             for i in range(1, 4):
                 scUrl = 'file:' + os.path.join(downdir2,filename[0:-4]+'_mip0%d.jpg'%i)
-                mml = MipMapLevel(level=i,imageUrl=scUrl)
+                mml = MipMap(level=i,imageUrl=scUrl)
                 tilespec.ip.update(mml)
 
         tempjson = tempfile.NamedTemporaryFile(
