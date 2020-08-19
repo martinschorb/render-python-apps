@@ -1,8 +1,8 @@
 import os
 import renderapi
-from renderapi.tilespec import TileSpec, Layout, MipMapLevel
+from renderapi.tilespec import TileSpec, Layout, MipMap
 from renderapi.transform import AffineModel
-from create_mipmaps import create_mipmaps
+from .create_mipmaps import create_mipmaps
 my_env = os.environ.copy()
 from ..module.render_module import RenderModule, RenderParameters
 from argschema.fields import InputFile, InputDir, Str, Int, Boolean
@@ -43,7 +43,7 @@ def make_tilespec_from_statetable (df,rootdir,outputProject,outputOwner,outputSt
     mipmap_args = []
     tilespecpaths = []
     for ((ch,sess),chgroup) in df.groupby(['ch_name','session']):
-        print ch,sess
+#        print ch,sess
 
         for ((rib,sect),group) in chgroup.groupby(['ribbon','section']):
             tilespeclist=[]
@@ -127,8 +127,8 @@ class CreateFastStack(RenderModule):
         statetablefile = self.args['statetableFile']
         rootdir = self.args['projectDirectory']
 
-        print "This is delete stack : "
-        print self.args['delete_stack']
+        print("This is delete stack : ")
+        print(self.args['delete_stack'])
         #exit(0)
         df = pd.read_csv(statetablefile)
         ribbons = df.groupby('ribbon')
