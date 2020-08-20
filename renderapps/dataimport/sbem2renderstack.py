@@ -66,12 +66,8 @@ def groupsharepath(f1):
 
 
 class CreateFastStacksParameters(RenderParameters):
-    statetableFile = InputFile(required=True,
-        description='state table file')
     projectDirectory = InputDir(required=True,
         description='path to project root')
-    outputStackPrefix = Str(required=False,default="ACQ",
-        description='prefix to include in front of channel name for render stack')
     pool_size = Int(require=False,default=20,
         description='number of parallel threads to use')
     delete_stack = Boolean(require=False,default=True,
@@ -139,11 +135,13 @@ def make_tilespec_from_sbemimage (rootdir,outputProject,outputOwner,outputStack,
                 mat_t = np.concatenate((mat_t,[[0,0,0,1]]))                
                 
                 f1 = os.path.realpath(tile['filename'])
-                          
+                
+                fbase = os.path.splitext(os.path.basename(f1))[0]
+                
                 tilespecdir = os.path.join('processed','tilespec')
             
             
-                filepath=groupsharepath(f1)
+                filepath= groupsharepath(f1)
                 
                 
                 
@@ -151,7 +149,7 @@ def make_tilespec_from_sbemimage (rootdir,outputProject,outputOwner,outputStack,
                 if not os.path.isdir(tilespecdir):
                     os.makedirs(tilespecdir)
                     
-                downdir = os.path.join("processed","downsamp_images",tile['tileid'])
+                downdir = os.path.join("processed","downsamp_images")
                 #print "This is the Down Sampled Directory: %s"%downdir
 
                 if not os.path.exists(downdir):
@@ -162,7 +160,7 @@ def make_tilespec_from_sbemimage (rootdir,outputProject,outputOwner,outputStack,
                 #construct command for creating mipmaps for this tilespec
                 #downcmd = ['python','create_mipmaps.py','--inputImage',filepath,'--outputDirectory',downdir,'--mipmaplevels','1','2','3']
                 #cmds.append(downcmd)
-                mipmap_args.append((filepath,downdir))
+                mipmap_args.append((f1,os.path.realpath(downdir)))
                 layout = Layout(sectionId=tile['slice_counter'],
                                                 scopeId='3View',
                                                 cameraId='3View',
@@ -173,12 +171,12 @@ def make_tilespec_from_sbemimage (rootdir,outputProject,outputOwner,outputStack,
                                                 rotation = 0.0,
                                                 pixelsize = pxs)
 
-                mipmap0 = MipMapLevel(level=0,imageUrl=filepath)
+                mipmap0 = MipMapLevel(level=0,imageUrl='file://' + filepath)
                 mipmaplevels=[mipmap0]
                 filename = tile['tileid']
 
                 for i in range(1,4):
-                    scUrl = 'file:' + os.path.join(downdir,filename[0:-4]+'_mip0%d.jpg'%i)
+                    scUrl = 'file://' + os.path.join(downdir1,fbase,'_mip0%d.jpg'%i)
                     mml = MipMapLevel(level=i,imageUrl=scUrl)
                     mipmaplevels.append(mml)
 
@@ -203,16 +201,22 @@ def make_tilespec_from_sbemimage (rootdir,outputProject,outputOwner,outputStack,
 
 
 
-            json_file = os.path.join(tilespecdir,outputProject+'_'+outputOwner+'_'+outputStack+'_%04d.json'%z)
-            fd=open(json_file, "w")
-            renderapi.utils.renderdump(tilespeclist,fd,sort_keys=True, indent=4, separators=(',', ': '))
-            fd.close()
-            tilespecpaths.append(json_file)
+                json_file = os.path.realpath(os.path.join(tilespecdir,outputProject+'_'+outputOwner+'_'+outputStack+'_%04d.json'%z))
+                fd=open(json_file, "w")
+                renderapi.utils.renderdump(tilespeclist,fd,sort_keys=True, indent=4, separators=(',', ': '))
+                fd.close()
+                tilespecpaths.append(json_file)
     return tilespecpaths,mipmap_args
 
 def create_mipmap_from_tuple(mipmap_tuple):
     (filepath,downdir)=mipmap_tuple
     return create_mipmaps(filepath,downdir)
+
+
+
+
+
+
 
 class CreateFastStack(RenderModule):
     def __init__(self,schema_type=None,*args,**kwargs):
@@ -223,18 +227,19 @@ class CreateFastStack(RenderModule):
     def run(self):
         outputProject=self.args['render']['project']
         outputOwner = self.args['render']['owner']
-        statetablefile = self.args['statetableFile']
         rootdir = self.args['projectDirectory']
 
-        print "This is delete stack : "
-        print self.args['delete_stack']
-        #exit(0)
-        df = pd.read_csv(statetablefile)
-        ribbons = df.groupby('ribbon')
-        k=0
-        for ribnum,ribbon in ribbons:
-            mydf = ribbon.groupby('ch_name')
-            for channum,chan in mydf:
+        # print "This is delete stack : "
+        # print self.args['delete_stack']
+        # #exit(0)
+        # df = pd.read_csv(statetablefile)
+        # ribbons = df.groupby('ribbon')
+        # k=0
+        # for ribnum,ribbon in ribbons:
+        #     mydf = ribbon.groupby('ch_name')
+        #     for channum,chan in mydf:
+                
+                
                 outputStack = self.args['outputStackPrefix'] + '_%s'%(channum)
 
                 self.logger.info("creating tilespecs and cmds....")
@@ -256,7 +261,7 @@ class CreateFastStack(RenderModule):
                         renderapi.stack.delete_stack(outputStack,owner=outputOwner,project=outputProject,render=self.render)
 
                     renderapi.stack.create_stack(outputStack,owner=outputOwner,
-                    project=outputProject,verbose=False,render=self.render)
+                    project=outputProject,verbose=False,render=parameters)
                 self.logger.info(tilespecpaths)
                 renderapi.client.import_jsonfiles(outputStack,tilespecpaths,render=self.render, poolsize=self.args['pool_size'])
             k+=1

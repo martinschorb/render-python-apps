@@ -2,7 +2,7 @@ from PIL import Image
 import argparse
 import os
 
-def create_mipmaps(inputImage,outputDirectory='.',mipmaplevels=[1,2,3],outputformat='jpg',convertTo8bit=True):
+def create_mipmaps(inputImage,outputDirectory='.',mipmaplevels=[1,2,3],outputformat='jpg',convertTo8bit=False):
     if not os.path.isdir(outputDirectory):
         os.makedirs(outputDirectory)
 
@@ -13,11 +13,13 @@ def create_mipmaps(inputImage,outputDirectory='.',mipmaplevels=[1,2,3],outputfor
         table=[ i/256 for i in range(65536) ]
         im = im.convert('I')
         im = im.point(table,'L')
+        
+    im = im.convert('L')    
     #print 'new mode',im.mode
     inputFileName = os.path.split(inputImage)[1]
                    
     for level in mipmaplevels:
-        newsize = tuple(map(lambda x: x/(2**level), origsize))
+        newsize = tuple(map(int,map(lambda x: x/(2**level), origsize)))
         dwnImage = im.resize(newsize)
         outpath = os.path.join(outputDirectory,inputFileName[0:-4]+'_mip%02d.'%level+outputformat)
         dwnImage.save(outpath)
