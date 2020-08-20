@@ -166,8 +166,8 @@ def make_tilespec_from_sbemimage (rootdir,outputProject,outputOwner,outputStack,
                                                 cameraId='3View',
                                                 imageRow=0,
                                                 imageCol=0,
-                                                stageX = tile['glob_x'],
-                                                stageY = tile['glob_y'],
+                                                stageX = tile['glob_x']/10,
+                                                stageY = tile['glob_y']/10,
                                                 rotation = 0.0,
                                                 pixelsize = pxs)
 
@@ -184,8 +184,8 @@ def make_tilespec_from_sbemimage (rootdir,outputProject,outputOwner,outputStack,
                                          M01=0,
                                          M10=0,
                                          M11=1,
-                                         B0=tile['glob_x'],
-                                         B1=tile['glob_y'])
+                                         B0=tile['glob_x']/10,
+                                         B1=tile['glob_y']/10)
 
                 tilespeclist.append(TileSpec(tileId=tile['tileid'],
                                      frameId = tile['tileid'][:tile['tileid'].find('.')],
