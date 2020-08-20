@@ -230,7 +230,11 @@ tilespecpaths,mipmap_args = make_tilespec_from_sbemimage(rootdir,outputProject,o
 # generate mipmaps
 with renderapi.client.WithPool(8) as pool:
     results=pool.map(create_mipmap_from_tuple,mipmap_args)
-    
+
+#connect to render server
+render1 = renderapi.connect(host='localhost',port=8080,owner=outputOwner,project=outputProject,client_scripts='/home/schorb/render/render-ws-java-client/src/main/scripts')
+
+
 #upload metadata to render server
 renderapi.client.import_jsonfiles(outputStack,tilespecpaths,render=render1, poolsize=8)
 
