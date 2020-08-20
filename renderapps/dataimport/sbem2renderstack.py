@@ -176,7 +176,7 @@ def make_tilespec_from_sbemimage (rootdir,outputProject,outputOwner,outputStack,
                 filename = tile['tileid']
 
                 for i in range(1,4):
-                    scUrl = 'file://' + os.path.join(downdir1,fbase,'_mip0%d.jpg'%i)
+                    scUrl = 'file://' + os.path.join(downdir1,fbase) + '_mip0%d.jpg'%i
                     mml = MipMapLevel(level=i,imageUrl=scUrl)
                     mipmaplevels.append(mml)
 
@@ -213,7 +213,26 @@ def create_mipmap_from_tuple(mipmap_tuple):
     return create_mipmaps(filepath,downdir)
 
 
+###
 
+
+###   CALL THE FUNCTIONS
+rootdir = os.getcwd()
+outputProject = SBEM_test1
+outputProject = 'SBEM_test1'
+outputOwner = 'SBEM'
+outputStack = 'platy_200527'
+
+
+# make tilespecs
+tilespecpaths,mipmap_args = make_tilespec_from_sbemimage(rootdir,outputProject,outputOwner,outputStack)
+
+# generate mipmaps
+with renderapi.client.WithPool(8) as pool:
+    results=pool.map(create_mipmap_from_tuple,mipmap_args)
+    
+#upload metadata to render server
+renderapi.client.import_jsonfiles(outputStack,tilespecpaths,render=render1, poolsize=8)
 
 
 
