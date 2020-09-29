@@ -218,7 +218,6 @@ def create_mipmap_from_tuple(mipmap_tuple):
 
 ###   CALL THE FUNCTIONS
 rootdir = os.getcwd()
-outputProject = SBEM_test1
 outputProject = 'SBEM_test1'
 outputOwner = 'SBEM'
 outputStack = 'platy_200527'
@@ -232,66 +231,72 @@ with renderapi.client.WithPool(8) as pool:
     results=pool.map(create_mipmap_from_tuple,mipmap_args)
 
 #connect to render server
-render1 = renderapi.connect(host='localhost',port=8080,owner=outputOwner,project=outputProject,client_scripts='/home/schorb/render/render-ws-java-client/src/main/scripts')
+render1 = renderapi.connect(host='pc-emcf-16',port=8080,owner=outputOwner,project=outputProject,client_scripts='/home/schorb/render/render-ws-java-client/src/main/scripts')
 
+# create Render stack
+renderapi.stack.create_stack(outputStack,owner=outputOwner,
+                    project=outputProject,verbose=False,render=render1)
+  
 
 #upload metadata to render server
 renderapi.client.import_jsonfiles(outputStack,tilespecpaths,render=render1, poolsize=8)
 
 
+###---------
 
+###THIS IS REMAINING STUFF TO MAKE THE CODE COMPATIBLE>>>>
 
-class CreateFastStack(RenderModule):
-    def __init__(self,schema_type=None,*args,**kwargs):
-        if schema_type is None:
-            schema_type = CreateFastStacksParameters
+# class CreateFastStack(RenderModule):
+#     def __init__(self,schema_type=None,*args,**kwargs):
+#         if schema_type is None:
+#             schema_type = CreateFastStacksParameters
 
-        super(CreateFastStack,self).__init__(schema_type=schema_type,*args,**kwargs)
-    def run(self):
-        outputProject=self.args['render']['project']
-        outputOwner = self.args['render']['owner']
-        rootdir = self.args['projectDirectory']
+#         super(CreateFastStack,self).__init__(schema_type=schema_type,*args,**kwargs)
+#     def run(self):
+#         outputProject=self.args['render']['project']
+#         outputOwner = self.args['render']['owner']
+#         rootdir = self.args['projectDirectory']
 
-        # print "This is delete stack : "
-        # print self.args['delete_stack']
-        # #exit(0)
-        # df = pd.read_csv(statetablefile)
-        # ribbons = df.groupby('ribbon')
-        # k=0
-        # for ribnum,ribbon in ribbons:
-        #     mydf = ribbon.groupby('ch_name')
-        #     for channum,chan in mydf:
+#         # print "This is delete stack : "
+#         # print self.args['delete_stack']
+#         # #exit(0)
+#         # df = pd.read_csv(statetablefile)
+#         # ribbons = df.groupby('ribbon')
+#         # k=0
+#         # for ribnum,ribbon in ribbons:
+#         #     mydf = ribbon.groupby('ch_name')
+#         #     for channum,chan in mydf:
                 
                 
-                outputStack = self.args['outputStackPrefix'] + '_%s'%(channum)
+#                 outputStack = self.args['outputStackPrefix'] + '_%s'%(channum)
 
-                self.logger.info("creating tilespecs and cmds....")
-                tilespecpaths,mipmap_args = make_tilespec_from_statetable(chan,rootdir,outputProject,outputOwner,outputStack)
-                self.logger.info("importing tilespecs into render....")
-                self.logger.info("creating downsampled images ...")
-                with renderapi.client.WithPool(self.args['pool_size']) as pool:
-                    results=pool.map(create_mipmap_from_tuple,mipmap_args)
+#                 self.logger.info("creating tilespecs and cmds....")
+#                 tilespecpaths,mipmap_args = make_tilespec_from_statetable(chan,rootdir,outputProject,outputOwner,outputStack)
+#                 self.logger.info("importing tilespecs into render....")
+#                 self.logger.info("creating downsampled images ...")
+#                 with renderapi.client.WithPool(self.args['pool_size']) as pool:
+#                     results=pool.map(create_mipmap_from_tuple,mipmap_args)
 
-                #groups = [(subprocess.Popen(cmd,\
-                # stdout=subprocess.PIPE) for cmd in cmds)] \
-                # * self.args['pool_size'] # itertools' grouper recipe
-                #for processes in izip_longest(*groups): # run len(processes) == limit at a time
-                #   for p in filter(None, processes):
-                #        p.wait()
-                self.logger.info("uploading to render ...")
-                if k==0:
-                    if self.args['delete_stack']:
-                        renderapi.stack.delete_stack(outputStack,owner=outputOwner,project=outputProject,render=self.render)
+#                 #groups = [(subprocess.Popen(cmd,\
+#                 # stdout=subprocess.PIPE) for cmd in cmds)] \
+#                 # * self.args['pool_size'] # itertools' grouper recipe
+#                 #for processes in izip_longest(*groups): # run len(processes) == limit at a time
+#                 #   for p in filter(None, processes):
+#                 #        p.wait()
+#                 self.logger.info("uploading to render ...")
+#                 if k==0:
+#                     if self.args['delete_stack']:
+#                         renderapi.stack.delete_stack(outputStack,owner=outputOwner,project=outputProject,render=self.render)
 
-                    renderapi.stack.create_stack(outputStack,owner=outputOwner,
-                    project=outputProject,verbose=False,render=parameters)
-                self.logger.info(tilespecpaths)
-                renderapi.client.import_jsonfiles(outputStack,tilespecpaths,render=self.render, poolsize=self.args['pool_size'])
-            k+=1
+#                     renderapi.stack.create_stack(outputStack,owner=outputOwner,
+#                     project=outputProject,verbose=False,render=parameters)
+#                 self.logger.info(tilespecpaths)
+#                 renderapi.client.import_jsonfiles(outputStack,tilespecpaths,render=self.render, poolsize=self.args['pool_size'])
+#             k+=1
 
-if __name__ == "__main__":
-    #mod = CreateFastStack(schema_type = CreateFastStacksParameters)
-    #print example_input
-    mod = CreateFastStack(input_data=example_input,schema_type=CreateFastStacksParameters)
-    mod.run()
+# if __name__ == "__main__":
+#     #mod = CreateFastStack(schema_type = CreateFastStacksParameters)
+#     #print example_input
+#     mod = CreateFastStack(input_data=example_input,schema_type=CreateFastStacksParameters)
+#     mod.run()
 
